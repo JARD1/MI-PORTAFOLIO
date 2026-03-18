@@ -1,0 +1,71 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
+
+/* AQUÍ ESTÁ LA MAGIA PARA TAILWIND v4 */
+@theme {
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+body {
+  @apply bg-[#0a0f1c] text-slate-100 antialiased;
+}
+
+/* -------------------------------------
+   Animaciones del TechStack (Carriles)
+-------------------------------------- */
+@keyframes scroll-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
+@keyframes scroll-right {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(0); }
+}
+
+.animate-scroll-left {
+  animation: scroll-left 25s linear infinite;
+}
+
+.animate-scroll-right {
+  animation: scroll-right 25s linear infinite;
+}
+
+/* Pausar la animación al pasar el ratón */
+.group-hover\:pause:hover .animate-scroll-left,
+.group-hover\:pause:hover .animate-scroll-right {
+  animation-play-state: paused;
+}
+
+/* -------------------------------------
+   Animaciones del Hero (Terminal y Órbita)
+-------------------------------------- */
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-cursor-blink {
+  animation: cursor-blink 0.8s step-end infinite;
+}
+
+/* Órbita principal: Gira el contenedor */
+@keyframes tech-orbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Contra-órbita: Gira el texto en sentido contrario para mantenerlo derecho */
+@keyframes tech-orbit-reverse {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+.animate-tech-orbit {
+  animation: tech-orbit linear infinite;
+}
+
+.animate-tech-orbit-reverse {
+  animation: tech-orbit-reverse linear infinite;
+}
