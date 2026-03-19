@@ -16,7 +16,7 @@ export const projects = [
     description: "Microservicio backend diseñado para el control escalable de stock y proveedores. Implementa arquitectura en capas, persistencia de datos relacional y seguridad robusta con tokens JWT.",
     techStack: ["Java", "Spring Boot", "Spring Security", "SQL", "JWT"],
     isPrivate: false,
-    githubLink: "https://github.com/tu-usuario/inventory-api",
+    githubLink: "https://github.com/JARD1/INVENTORY-CORE-API-RESTFULL",
     liveLink: ""
   },
   {
@@ -26,7 +26,7 @@ export const projects = [
     description: "Servicio automatizado asíncrono que procesa y redirige flujos de información entre chats en tiempo real, optimizando la comunicación y la gestión de datos mediante la integración con la API de Telegram.",
     techStack: ["Python", "Telethon", "AsyncIO", "API Telegram"],
     isPrivate: false,
-    githubLink: "https://github.com/tu-usuario/botgp",
+    githubLink: "https://github.com/JARD1/BOTGP-AUTO",
     liveLink: ""
   }
 ];

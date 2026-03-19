@@ -1,18 +1,45 @@
 import React, { useState } from 'react';
+// Importamos el PDF directamente desde assets
+import miCV from '../assets/Jorge_Diaz_CV.pdf';
 
 export function Footer() {
   const [status, setStatus] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus('loading');
     
-    // Simulación de envío
-    setTimeout(() => {
-      setStatus('success');
-      e.target.reset();
+    // 1. Recopilamos los datos del formulario
+    const form = e.target;
+    const formData = new FormData(form);
+    
+    // Opciones extra para que el correo llegue más limpio
+    formData.append("_captcha", "false"); // Quita el captcha molesto
+    formData.append("_subject", "¡Nuevo mensaje desde tu Portafolio!"); // Asunto del correo
+
+    try {
+      // 2. Enviamos los datos a FormSubmit vía AJAX para no recargar la página
+      const response = await fetch("https://formsubmit.co/ajax/jorgediazdev1@gmail.com", {
+        method: "POST",
+        headers: {
+          'Accept': 'application/json'
+        },
+        body: formData
+      });
+
+      if (response.ok) {
+        setStatus('success');
+        form.reset(); // Limpia el formulario
+        setTimeout(() => setStatus(''), 4000);
+      } else {
+        setStatus('error');
+        setTimeout(() => setStatus(''), 4000);
+      }
+    } catch (error) {
+      console.error(error);
+      setStatus('error');
       setTimeout(() => setStatus(''), 4000);
-    }, 1500);
+    }
   };
 
   return (
@@ -39,19 +66,24 @@ export function Footer() {
           
           <div className="flex flex-col sm:flex-row items-center gap-6 justify-center lg:justify-start pt-4">
             <div className="flex gap-6">
-              <a href="https://github.com/tu-usuario" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-emerald-400 transition-all hover:-translate-y-1" title="GitHub">
+              <a href="https://github.com/JARD1" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-emerald-400 transition-all hover:-translate-y-1" title="GitHub">
                 <span className="sr-only">GitHub</span>
                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" /></svg>
               </a>
-              <a href="https://linkedin.com/in/tu-usuario" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-emerald-400 transition-all hover:-translate-y-1" title="LinkedIn">
+              <a href="https://www.linkedin.com/in/jorge-diaz-1268b02a0/" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-emerald-400 transition-all hover:-translate-y-1" title="LinkedIn">
                 <span className="sr-only">LinkedIn</span>
                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" /></svg>
               </a>
+              <a href="https://wa.me/584241583601" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-emerald-400 transition-all hover:-translate-y-1" title="WhatsApp">
+                <span className="sr-only">WhatsApp</span>
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 21c-1.566 0-3.093-.418-4.444-1.213l-.317-.188-3.315.87.884-3.232-.206-.328C3.803 15.534 3 13.824 3 12c0-4.962 4.038-9 9.031-9 4.994 0 9 4.038 9 9s-4.006 9-9 9zm0-16.5c-4.136 0-7.5 3.364-7.5 7.5 0 1.34.35 2.64 1.012 3.774l.115.197-.6 2.19 2.246-.588.192.114C8.59 18.666 9.872 19 11.231 19c4.135 0 7.5-3.364 7.5-7.5s-3.365-7.5-7.5-7.5zM16.036 14.5c-.218-.11-1.285-.635-1.484-.708-.199-.073-.344-.11-.489.11-.145.22-.562.708-.689.853-.127.146-.255.164-.473.054-.218-.11-.917-.338-1.748-1.077-.647-.577-1.084-1.29-1.211-1.51-.127-.22-.014-.339.095-.449.098-.098.218-.255.327-.383.11-.127.145-.22.218-.364.073-.146.036-.274-.018-.384-.055-.11-.489-1.18-.67-1.616-.178-.426-.359-.368-.489-.375h-.418c-.145 0-.382.055-.581.274-.2.22-.763.745-.763 1.817s.781 2.108.89 2.254c.11.146 1.536 2.345 3.722 3.29.519.225.924.359 1.24.46.52.164.993.14 1.366.085.42-.062 1.285-.525 1.467-1.032.182-.508.182-.942.127-1.032-.054-.09-.2-.146-.418-.256z" /></svg>
+              </a>
             </div>
             
+            {/* CORRECCIÓN: href apunta a la variable importada 'miCV' */}
             <a 
-              href="/cv-jorge-diaz.pdf" 
-              download
+              href={miCV} 
+              download="Jorge_Diaz_CV.pdf"
               className="px-6 py-2.5 bg-slate-800/50 hover:bg-slate-800 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/50 rounded-lg text-sm font-bold transition-all flex items-center gap-2 group"
             >
               <span>Descargar CV</span>
@@ -68,6 +100,7 @@ export function Footer() {
               <input 
                 type="text" 
                 id="name" 
+                name="name" 
                 required
                 className="w-full bg-slate-950/50 border border-slate-800 rounded-lg px-4 py-3 text-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
                 placeholder="Ej. Reclutador Tech"
@@ -78,6 +111,7 @@ export function Footer() {
               <input 
                 type="email" 
                 id="email" 
+                name="email" 
                 required
                 className="w-full bg-slate-950/50 border border-slate-800 rounded-lg px-4 py-3 text-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
                 placeholder="correo@empresa.com"
@@ -87,6 +121,7 @@ export function Footer() {
               <label htmlFor="message" className="block text-sm font-medium text-slate-400 mb-1">Mensaje</label>
               <textarea 
                 id="message" 
+                name="message" 
                 required
                 rows="4"
                 className="w-full bg-slate-950/50 border border-slate-800 rounded-lg px-4 py-3 text-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors resize-none"
@@ -100,9 +135,11 @@ export function Footer() {
               className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 px-6 rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {status === 'loading' ? (
-                <span className="animate-pulse">Procesando...</span>
+                <span className="animate-pulse">Enviando mensaje...</span>
               ) : status === 'success' ? (
                 <span>¡Mensaje Enviado! 🚀</span>
+              ) : status === 'error' ? (
+                <span className="text-red-900">Hubo un error ❌</span>
               ) : (
                 <span>Enviar Mensaje</span>
               )}

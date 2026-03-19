@@ -39,7 +39,7 @@ const TypewriterText = ({ text, className = "", cursor = false, onComplete }) =>
 // 2. Componente del Marco Giratorio 
 // --------------------------------------------------------------------------
 const RotatingFrame = () => {
-  const techs = ["Java", "Spring Boot", "Python", "React", "Node.js", "SQL"];
+  const techs = ["Java", "Spring", "Python", "React", "Node.js", "SQL",];
   const [index, setIndex] = useState(0);
   const [fade, setFade] = useState(true);
 
@@ -67,14 +67,13 @@ const RotatingFrame = () => {
 };
 
 // --------------------------------------------------------------------------
-// 3. Componente "TechOrbit" (AHORA SÍ: Matemáticamente perfecto y horizontal)
+// 3. Componente "TechOrbit"
 // --------------------------------------------------------------------------
 const TechOrbit = () => {
-  const techs = useMemo(() => ["JAVA", "PYTHON", "SPRING BOOT", "REACT", "NODE.JS", "SQL"], []);
+  const techs = useMemo(() => ["JAVA", "PYTHON", "SPRING", "REACT", "NODE.JS", "SQL"], []);
   const orbitDuration = "30s"; 
 
   return (
-    // Anillo principal que gira
     <div 
       className="absolute w-[340px] h-[340px] md:w-[460px] md:h-[460px] rounded-full border border-dashed border-emerald-500/20 z-0 animate-tech-orbit"
       style={{ animationDuration: orbitDuration }}
@@ -83,18 +82,15 @@ const TechOrbit = () => {
         const angle = (i / techs.length) * 360;
         
         return (
-          // 1. Posicionamos cada contenedor en su ángulo correspondiente del anillo
           <div
             key={tech}
             className="absolute top-1/2 left-1/2 w-full h-full pointer-events-none"
             style={{ transform: `translate(-50%, -50%) rotate(${angle}deg)` }}
           >
-            {/* 2. Colocamos el texto en el borde exterior y DES-ROTAMOS el ángulo estático */}
             <div
               className="absolute top-0 left-1/2 pointer-events-auto"
               style={{ transform: `translate(-50%, -50%) rotate(-${angle}deg)` }}
             >
-              {/* 3. El texto gira al revés (dinámicamente) para contrarrestar el anillo principal */}
               <div 
                 className="px-4 py-1.5 bg-[#0a0f1c] border border-emerald-500/40 rounded-full font-mono text-emerald-400 text-sm font-bold shadow-[0_0_15px_rgba(16,185,129,0.3)] whitespace-nowrap animate-tech-orbit-reverse"
                 style={{ animationDuration: orbitDuration }}
@@ -116,27 +112,64 @@ export function Hero() {
   const [step, setStep] = useState(0);
   const nextStep = useCallback(() => setStep((s) => s + 1), []);
 
+  // Lógica del Puntero para los ojos del robot
+  const [pupilOffsets, setPupilOffsets] = useState([{ dx: 0, dy: 0 }, { dx: 0, dy: 0 }]);
+
+  useEffect(() => {
+    const handleMouseMove = (event) => {
+      const eyeIds = ['eye-l', 'eye-r'];
+      const maxTranslation = 5; 
+
+      const newOffsets = eyeIds.map(id => {
+        const eyeElement = document.getElementById(id);
+        if (!eyeElement) return { dx: 0, dy: 0 };
+        
+        const rect = eyeElement.getBoundingClientRect();
+        const eyeX = rect.left + rect.width / 2;
+        const eyeY = rect.top + rect.height / 2;
+        
+        const vectorX = event.clientX - eyeX;
+        const vectorY = event.clientY - eyeY;
+        
+        const magnitude = Math.sqrt(vectorX * vectorX + vectorY * vectorY);
+        
+        const dx = magnitude === 0 ? 0 : (vectorX / magnitude) * Math.min(magnitude / 100, maxTranslation);
+        const dy = magnitude === 0 ? 0 : (vectorY / magnitude) * Math.min(magnitude / 100, maxTranslation);
+        
+        return { dx, dy };
+      });
+
+      setPupilOffsets(newOffsets);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    return () => document.removeEventListener('mousemove', handleMouseMove);
+  }, []); 
+
   return (
     <section className="relative min-h-[90vh] flex items-center overflow-hidden">
       
-      {/* FONDO MATRIX */}
-      <div 
-        className="absolute inset-0 opacity-[0.03] pointer-events-none"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='20' font-family='monospace' font-size='12' fill='%2310b981'%3E%7B%3C/text%3E%3Ctext x='50' y='40' font-family='monospace' font-size='10' fill='%2310b981'%3E010%3C/text%3E%3Ctext x='90' y='15' font-family='monospace' font-size='14' fill='%2310b981'%3E;%3C/text%3E%3Ctext x='25' y='80' font-family='monospace' font-size='10' fill='%2310b981'%3Ereturn;%3C/text%3E%3Ctext x='80' y='95' font-family='monospace' font-size='12' fill='%2310b981'%3E%7D%3C/text%3E%3Ctext x='5' y='110' font-family='monospace' font-size='8' fill='%2310b981'%3Epublic%3C/text%3E%3Ctext x='65' y='60' font-family='monospace' font-size='12' fill='%2310b981'%3E()%3C/text%3E%3C/svg%3E")`,
-          backgroundSize: '120px 120px'
-        }}
-      ></div>
+      {/* FONDO ANIMADO PREMIUM (Nebulosa) - Aumenté la opacidad a /30 para que se note más */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div 
+          className="absolute -top-[20%] -left-[10%] w-[600px] h-[600px] bg-emerald-500/30 blur-[120px] rounded-full mix-blend-screen animate-pulse"
+          style={{ animationDuration: '6s' }}
+        ></div>
+        <div 
+          className="absolute -bottom-[20%] -right-[10%] w-[600px] h-[600px] bg-cyan-500/30 blur-[150px] rounded-full mix-blend-screen animate-pulse"
+          style={{ animationDuration: '10s' }}
+        ></div>
+      </div>
 
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a0f1c]/50 to-[#0a0f1c] pointer-events-none z-0"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a0f1c]/70 to-[#0a0f1c] pointer-events-none z-0"></div>
 
       <div className="max-w-6xl mx-auto px-8 py-20 md:py-32 flex flex-col md:flex-row items-center gap-12 relative z-10 w-full">
         
         {/* Columna de Texto */}
-        <div className="flex-1 space-y-6 text-center md:text-left">
+        <div className="flex-1 space-y-6 text-center md:text-left relative z-20">
           
-          <div className="flex justify-center md:justify-start">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 border border-slate-800 rounded-lg shadow-inner">
+          <div className="flex justify-center md:justify-start relative z-20">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900/80 backdrop-blur-sm border border-slate-800 rounded-lg shadow-inner">
               <span className="relative flex h-3 w-3">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
@@ -147,15 +180,62 @@ export function Hero() {
             </div>
           </div>
 
-          <h2 className="text-5xl md:text-6xl font-extrabold text-slate-100 leading-tight min-h-[120px] md:min-h-[144px]">
+          <h2 className="text-5xl md:text-6xl font-extrabold text-slate-100 leading-tight min-h-[120px] md:min-h-[144px] relative z-20">
             <TypewriterText text="$ > Hola, soy " cursor={step === 0} onComplete={nextStep} />
             <br className="hidden md:block"/>
             {step >= 1 && (
-              <TypewriterText text="Jorge Diaz" className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent" cursor={step === 1} onComplete={nextStep} />
+              <React.Fragment>
+                <TypewriterText text="Jorge Diaz" className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent" cursor={step === 1} onComplete={nextStep} />
+                
+                {/* ------------------------------------- */}
+                {/* ROBOT SENTADO - SIN CAPA DE INVISIBILIDAD */}
+                {/* ------------------------------------- */}
+                <div className="inline-block relative w-12 h-12 ml-4 -mt-2 align-middle pointer-events-none">
+                  
+                  {/* Cuerpo del Robot */}
+                  <div className="absolute inset-0 bg-slate-800 border border-slate-700 rounded-full flex flex-col items-center justify-center shadow-lg">
+                    
+                    {/* Antenas */}
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 flex gap-4">
+                      <div className="w-0.5 h-3 bg-slate-700 rounded-full"></div>
+                      <div className="w-0.5 h-3 bg-slate-700 rounded-full"></div>
+                    </div>
+
+                    {/* Fila de Ojos */}
+                    <div className="flex gap-2">
+                      {/* Ojo Izquierdo */}
+                      <div id="eye-l" className="relative w-4 h-4 bg-slate-900 border border-slate-700 rounded-full flex items-center justify-center overflow-hidden">
+                        <div 
+                          className="w-2 h-2 bg-emerald-400 rounded-full shadow-[0_0_5px_#10b981]"
+                          style={{
+                            transform: `translate(${pupilOffsets[0].dx}px, ${pupilOffsets[0].dy}px)`
+                          }}
+                        ></div>
+                      </div>
+                      
+                      {/* Ojo Derecho */}
+                      <div id="eye-r" className="relative w-4 h-4 bg-slate-900 border border-slate-700 rounded-full flex items-center justify-center overflow-hidden">
+                        <div 
+                          className="w-2 h-2 bg-emerald-400 rounded-full shadow-[0_0_5px_#10b981]"
+                          style={{
+                            transform: `translate(${pupilOffsets[1].dx}px, ${pupilOffsets[1].dy}px)`
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    {/* Pequeña boca / terminal */}
+                    <div className="w-3 h-1 bg-slate-900 border border-slate-700 rounded-full mt-1.5 flex items-center justify-center">
+                       <span className="w-1.5 h-0.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                    </div>
+
+                  </div>
+                </div>
+              </React.Fragment>
             )}
           </h2>
           
-          <p className="text-xl leading-relaxed max-w-2xl min-h-[160px] sm:min-h-[120px] md:min-h-[96px] font-mono text-slate-400">
+          <p className="text-xl leading-relaxed max-w-2xl min-h-[160px] sm:min-h-[120px] md:min-h-[96px] font-mono text-slate-400 relative z-20">
             {step >= 2 && (
               <TypewriterText text="Desarrollador de Software enfocado en Backend y Automatización. Transformo problemas complejos en soluciones eficientes usando" cursor={step === 2} onComplete={nextStep} />
             )}
@@ -167,13 +247,34 @@ export function Hero() {
             )}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 pt-6 justify-center md:justify-start">
+          {/* Botones principales */}
+          <div className="flex flex-col sm:flex-row gap-4 pt-4 justify-center md:justify-start relative z-20">
             <a href="#proyectos" className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 px-8 rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] flex items-center justify-center gap-2">
               <span>Ver mis proyectos</span>
               <span className="text-xs font-mono">./projects.sh</span>
             </a>
-            <a href="#contacto" className="border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white font-bold py-3 px-8 rounded-xl transition-all bg-slate-800/50 hover:bg-slate-800 flex items-center justify-center">
+            <a href="#contacto" className="border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white font-bold py-3 px-8 rounded-xl transition-all bg-slate-800/50 hover:bg-slate-800 flex items-center justify-center backdrop-blur-sm">
               Contactar<span className="text-emerald-500 font-mono ml-1">;</span>
+            </a>
+          </div>
+
+          {/* Fila de Íconos de Contacto Rápido */}
+          <div className="flex justify-center md:justify-start gap-5 pt-6 relative z-20">
+            <a href="https://github.com/JARD1" target="_blank" rel="noopener noreferrer" className="p-2 text-slate-400 hover:text-emerald-400 hover:-translate-y-1 transition-all" title="GitHub">
+              <span className="sr-only">GitHub</span>
+              <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" /></svg>
+            </a>
+            <a href="https://www.linkedin.com/in/jorge-diaz-1268b02a0/" target="_blank" rel="noopener noreferrer" className="p-2 text-slate-400 hover:text-cyan-400 hover:-translate-y-1 transition-all" title="LinkedIn">
+              <span className="sr-only">LinkedIn</span>
+              <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" /></svg>
+            </a>
+            <a href="https://wa.me/584241583601" target="_blank" rel="noopener noreferrer" className="p-2 text-slate-400 hover:text-emerald-500 hover:-translate-y-1 transition-all" title="WhatsApp">
+              <span className="sr-only">WhatsApp</span>
+              <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 21c-1.566 0-3.093-.418-4.444-1.213l-.317-.188-3.315.87.884-3.232-.206-.328C3.803 15.534 3 13.824 3 12c0-4.962 4.038-9 9.031-9 4.994 0 9 4.038 9 9s-4.006 9-9 9zm0-16.5c-4.136 0-7.5 3.364-7.5 7.5 0 1.34.35 2.64 1.012 3.774l.115.197-.6 2.19 2.246-.588.192.114C8.59 18.666 9.872 19 11.231 19c4.135 0 7.5-3.364 7.5-7.5s-3.365-7.5-7.5-7.5zM16.036 14.5c-.218-.11-1.285-.635-1.484-.708-.199-.073-.344-.11-.489.11-.145.22-.562.708-.689.853-.127.146-.255.164-.473.054-.218-.11-.917-.338-1.748-1.077-.647-.577-1.084-1.29-1.211-1.51-.127-.22-.014-.339.095-.449.098-.098.218-.255.327-.383.11-.127.145-.22.218-.364.073-.146.036-.274-.018-.384-.055-.11-.489-1.18-.67-1.616-.178-.426-.359-.368-.489-.375h-.418c-.145 0-.382.055-.581.274-.2.22-.763.745-.763 1.817s.781 2.108.89 2.254c.11.146 1.536 2.345 3.722 3.29.519.225.924.359 1.24.46.52.164.993.14 1.366.085.42-.062 1.285-.525 1.467-1.032.182-.508.182-.942.127-1.032-.054-.09-.2-.146-.418-.256z" /></svg>
+            </a>
+            <a href="mailto:jorgediazdev1@gmail.com" className="p-2 text-slate-400 hover:text-emerald-400 hover:-translate-y-1 transition-all" title="Email">
+              <span className="sr-only">Email</span>
+              <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
             </a>
           </div>
         </div>
