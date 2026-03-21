@@ -1,8 +1,100 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import jorgePhoto from '../assets/Jorge.png'; 
 
 // --------------------------------------------------------------------------
-// 1. Componente Typewriter Inteligente
+// 1. Fondo de Partículas (Red Tecnológica) usando Canvas
+// --------------------------------------------------------------------------
+const ParticleBackground = () => {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    let animationFrameId;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = [];
+    // Reduje un poco la cantidad de 80 a 65 para que, al ser más grandes, no sature la pantalla
+    const numParticles = 65; 
+
+    for (let i = 0; i < numParticles; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        // AQUÍ ESTÁ EL CAMBIO: Radio más grande (entre 2.5 y 6px de radio)
+        radius: Math.random() * 3.5 + 2.5, 
+        vx: Math.random() * 0.5 - 0.25,
+        vy: Math.random() * 0.5 - 0.25,
+      });
+    }
+
+    const render = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach((p, i) => {
+        // Mover partículas
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Rebotar en los bordes
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+        // Dibujar partícula
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.6)'; // Color Emerald un poco más opaco para resaltar
+        ctx.fill();
+
+        // Conectar con otras partículas
+        for (let j = i + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dx = p.x - p2.x;
+          const dy = p.y - p2.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < 160) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            // La línea se desvanece mientras más lejos estén, pero es más notoria ahora
+            ctx.strokeStyle = `rgba(16, 185, 129, ${0.25 - distance / 640})`; 
+            ctx.lineWidth = 1; // Líneas un poco más gruesas para acompañar a los nodos grandes
+            ctx.stroke();
+          }
+        }
+      });
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+  return (
+    <canvas 
+      ref={canvasRef} 
+      className="absolute inset-0 z-0 pointer-events-none opacity-50"
+    />
+  );
+};
+
+// --------------------------------------------------------------------------
+// 2. Componente Typewriter Inteligente
 // --------------------------------------------------------------------------
 const TypewriterText = ({ text, className = "", cursor = false, onComplete }) => {
   const [displayedText, setDisplayedText] = useState('');
@@ -36,10 +128,10 @@ const TypewriterText = ({ text, className = "", cursor = false, onComplete }) =>
 };
 
 // --------------------------------------------------------------------------
-// 2. Componente del Marco Giratorio 
+// 3. Componente del Marco Giratorio 
 // --------------------------------------------------------------------------
 const RotatingFrame = () => {
-  const techs = ["Java", "Spring", "Python", "React", "Node.js", "SQL",];
+  const techs = ["Java", "Spring Boot", "Python", "React", "Node.js", "SQL"];
   const [index, setIndex] = useState(0);
   const [fade, setFade] = useState(true);
 
@@ -67,10 +159,10 @@ const RotatingFrame = () => {
 };
 
 // --------------------------------------------------------------------------
-// 3. Componente "TechOrbit"
+// 4. Componente "TechOrbit"
 // --------------------------------------------------------------------------
 const TechOrbit = () => {
-  const techs = useMemo(() => ["JAVA", "PYTHON", "SPRING", "REACT", "NODE.JS", "SQL"], []);
+  const techs = useMemo(() => ["JAVA", "PYTHON", "SPRING BOOT", "REACT", "NODE.JS", "SQL"], []);
   const orbitDuration = "30s"; 
 
   return (
@@ -106,61 +198,17 @@ const TechOrbit = () => {
 };
 
 // --------------------------------------------------------------------------
-// 4. Componente Principal Hero
+// 5. Componente Principal Hero
 // --------------------------------------------------------------------------
 export function Hero() {
   const [step, setStep] = useState(0);
   const nextStep = useCallback(() => setStep((s) => s + 1), []);
 
-  // Lógica del Puntero para los ojos del robot
-  const [pupilOffsets, setPupilOffsets] = useState([{ dx: 0, dy: 0 }, { dx: 0, dy: 0 }]);
-
-  useEffect(() => {
-    const handleMouseMove = (event) => {
-      const eyeIds = ['eye-l', 'eye-r'];
-      const maxTranslation = 5; 
-
-      const newOffsets = eyeIds.map(id => {
-        const eyeElement = document.getElementById(id);
-        if (!eyeElement) return { dx: 0, dy: 0 };
-        
-        const rect = eyeElement.getBoundingClientRect();
-        const eyeX = rect.left + rect.width / 2;
-        const eyeY = rect.top + rect.height / 2;
-        
-        const vectorX = event.clientX - eyeX;
-        const vectorY = event.clientY - eyeY;
-        
-        const magnitude = Math.sqrt(vectorX * vectorX + vectorY * vectorY);
-        
-        const dx = magnitude === 0 ? 0 : (vectorX / magnitude) * Math.min(magnitude / 100, maxTranslation);
-        const dy = magnitude === 0 ? 0 : (vectorY / magnitude) * Math.min(magnitude / 100, maxTranslation);
-        
-        return { dx, dy };
-      });
-
-      setPupilOffsets(newOffsets);
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-    return () => document.removeEventListener('mousemove', handleMouseMove);
-  }, []); 
-
   return (
     <section className="relative min-h-[90vh] flex items-center overflow-hidden">
       
-      {/* FONDO ANIMADO PREMIUM (Nebulosa) - Aumenté la opacidad a /30 para que se note más */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <div 
-          className="absolute -top-[20%] -left-[10%] w-[600px] h-[600px] bg-emerald-500/30 blur-[120px] rounded-full mix-blend-screen animate-pulse"
-          style={{ animationDuration: '6s' }}
-        ></div>
-        <div 
-          className="absolute -bottom-[20%] -right-[10%] w-[600px] h-[600px] bg-cyan-500/30 blur-[150px] rounded-full mix-blend-screen animate-pulse"
-          style={{ animationDuration: '10s' }}
-        ></div>
-      </div>
-
+      {/* FONDO ANIMADO DE PARTÍCULAS TECNOLÓGICAS */}
+      <ParticleBackground />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a0f1c]/70 to-[#0a0f1c] pointer-events-none z-0"></div>
 
       <div className="max-w-6xl mx-auto px-8 py-20 md:py-32 flex flex-col md:flex-row items-center gap-12 relative z-10 w-full">
@@ -184,54 +232,7 @@ export function Hero() {
             <TypewriterText text="$ > Hola, soy " cursor={step === 0} onComplete={nextStep} />
             <br className="hidden md:block"/>
             {step >= 1 && (
-              <React.Fragment>
-                <TypewriterText text="Jorge Diaz" className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent" cursor={step === 1} onComplete={nextStep} />
-                
-                {/* ------------------------------------- */}
-                {/* ROBOT SENTADO - SIN CAPA DE INVISIBILIDAD */}
-                {/* ------------------------------------- */}
-                <div className="inline-block relative w-12 h-12 ml-4 -mt-2 align-middle pointer-events-none">
-                  
-                  {/* Cuerpo del Robot */}
-                  <div className="absolute inset-0 bg-slate-800 border border-slate-700 rounded-full flex flex-col items-center justify-center shadow-lg">
-                    
-                    {/* Antenas */}
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 flex gap-4">
-                      <div className="w-0.5 h-3 bg-slate-700 rounded-full"></div>
-                      <div className="w-0.5 h-3 bg-slate-700 rounded-full"></div>
-                    </div>
-
-                    {/* Fila de Ojos */}
-                    <div className="flex gap-2">
-                      {/* Ojo Izquierdo */}
-                      <div id="eye-l" className="relative w-4 h-4 bg-slate-900 border border-slate-700 rounded-full flex items-center justify-center overflow-hidden">
-                        <div 
-                          className="w-2 h-2 bg-emerald-400 rounded-full shadow-[0_0_5px_#10b981]"
-                          style={{
-                            transform: `translate(${pupilOffsets[0].dx}px, ${pupilOffsets[0].dy}px)`
-                          }}
-                        ></div>
-                      </div>
-                      
-                      {/* Ojo Derecho */}
-                      <div id="eye-r" className="relative w-4 h-4 bg-slate-900 border border-slate-700 rounded-full flex items-center justify-center overflow-hidden">
-                        <div 
-                          className="w-2 h-2 bg-emerald-400 rounded-full shadow-[0_0_5px_#10b981]"
-                          style={{
-                            transform: `translate(${pupilOffsets[1].dx}px, ${pupilOffsets[1].dy}px)`
-                          }}
-                        ></div>
-                      </div>
-                    </div>
-
-                    {/* Pequeña boca / terminal */}
-                    <div className="w-3 h-1 bg-slate-900 border border-slate-700 rounded-full mt-1.5 flex items-center justify-center">
-                       <span className="w-1.5 h-0.5 bg-emerald-500 rounded-full animate-pulse"></span>
-                    </div>
-
-                  </div>
-                </div>
-              </React.Fragment>
+              <TypewriterText text="Jorge Diaz" className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent" cursor={step === 1} onComplete={nextStep} />
             )}
           </h2>
           
@@ -272,7 +273,7 @@ export function Hero() {
               <span className="sr-only">WhatsApp</span>
               <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 21c-1.566 0-3.093-.418-4.444-1.213l-.317-.188-3.315.87.884-3.232-.206-.328C3.803 15.534 3 13.824 3 12c0-4.962 4.038-9 9.031-9 4.994 0 9 4.038 9 9s-4.006 9-9 9zm0-16.5c-4.136 0-7.5 3.364-7.5 7.5 0 1.34.35 2.64 1.012 3.774l.115.197-.6 2.19 2.246-.588.192.114C8.59 18.666 9.872 19 11.231 19c4.135 0 7.5-3.364 7.5-7.5s-3.365-7.5-7.5-7.5zM16.036 14.5c-.218-.11-1.285-.635-1.484-.708-.199-.073-.344-.11-.489.11-.145.22-.562.708-.689.853-.127.146-.255.164-.473.054-.218-.11-.917-.338-1.748-1.077-.647-.577-1.084-1.29-1.211-1.51-.127-.22-.014-.339.095-.449.098-.098.218-.255.327-.383.11-.127.145-.22.218-.364.073-.146.036-.274-.018-.384-.055-.11-.489-1.18-.67-1.616-.178-.426-.359-.368-.489-.375h-.418c-.145 0-.382.055-.581.274-.2.22-.763.745-.763 1.817s.781 2.108.89 2.254c.11.146 1.536 2.345 3.722 3.29.519.225.924.359 1.24.46.52.164.993.14 1.366.085.42-.062 1.285-.525 1.467-1.032.182-.508.182-.942.127-1.032-.054-.09-.2-.146-.418-.256z" /></svg>
             </a>
-            <a href="mailto:jorgediazdev1@gmail.com" className="p-2 text-slate-400 hover:text-emerald-400 hover:-translate-y-1 transition-all" title="Email">
+            <a href="#contacto" className="p-2 text-slate-400 hover:text-emerald-400 hover:-translate-y-1 transition-all" title="Email">
               <span className="sr-only">Email</span>
               <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
             </a>
@@ -283,8 +284,8 @@ export function Hero() {
         <div className="flex-1 flex justify-center items-center mt-16 md:mt-0 relative min-h-[360px] md:min-h-[460px]">
           <div className="relative flex items-center justify-center w-full h-full">
             
-            {/* Órbita de palabras */}
-            {step >= 3 && <TechOrbit />}
+            {/* Órbita de palabras - APARECE DESDE EL INICIO */}
+            <TechOrbit />
 
             {/* Foto de perfil */}
             <div className="relative w-64 h-64 md:w-80 md:h-80 group z-10">
