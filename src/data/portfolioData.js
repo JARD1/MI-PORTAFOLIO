@@ -35,7 +35,7 @@ export const projects = [
     brandName: "Ensolvers Notes Manager",
     description: "Aplicación de página única (SPA) desacoplada de una API RESTful. Desarrollada con arquitectura multicapa, incluye operaciones CRUD, archivado lógico, categorización dinámica (relación muchos a muchos) y personalización de interfaz.",
     techStack: ["React", "Java 21", "Spring Boot", "MySQL", "Tailwind CSS"],
-    isPrivate: true,
+    isPrivate: false,
     githubLink: "https://github.com/hirelens-challenges/Diaz-776436",
     liveLink: ""
   }
