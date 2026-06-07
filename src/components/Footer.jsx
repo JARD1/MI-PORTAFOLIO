@@ -1,24 +1,22 @@
 import React, { useState } from 'react';
-// Importamos el PDF directamente desde assets
+import { useLanguage } from '../context/LanguageContext';
 import miCV from '../assets/Jorge_Diaz_CV.pdf';
 
 export function Footer() {
   const [status, setStatus] = useState('');
+  const { t } = useLanguage();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus('loading');
     
-    // 1. Recopilamos los datos del formulario
     const form = e.target;
     const formData = new FormData(form);
     
-    // Opciones extra para que el correo llegue más limpio
-    formData.append("_captcha", "false"); // Quita el captcha molesto
-    formData.append("_subject", "¡Nuevo mensaje desde tu Portafolio!"); // Asunto del correo
+    formData.append("_captcha", "false"); 
+    formData.append("_subject", "¡Nuevo mensaje desde tu Portafolio!"); 
 
     try {
-      // 2. Enviamos los datos a FormSubmit vía AJAX para no recargar la página
       const response = await fetch("https://formsubmit.co/ajax/jorgediazdev1@gmail.com", {
         method: "POST",
         headers: {
@@ -29,7 +27,7 @@ export function Footer() {
 
       if (response.ok) {
         setStatus('success');
-        form.reset(); // Limpia el formulario
+        form.reset(); 
         setTimeout(() => setStatus(''), 4000);
       } else {
         setStatus('error');
@@ -40,6 +38,21 @@ export function Footer() {
       setStatus('error');
       setTimeout(() => setStatus(''), 4000);
     }
+  };
+
+  // Función para inyectar la negrita en 'Backend' dinámicamente
+  const formatText = (text) => {
+    if (!text) return "";
+    const parts = text.split("Backend");
+    if (parts.length === 1) return text;
+    
+    return (
+      <>
+        {parts[0]}
+        <strong>Backend</strong>
+        {parts[1]}
+      </>
+    );
   };
 
   return (
@@ -53,15 +66,11 @@ export function Footer() {
         {/* Columna Izquierda: Mensaje Estratégico para Reclutadores */}
         <div className="lg:w-1/2 space-y-8 text-center lg:text-left">
           <h2 className="text-4xl md:text-5xl font-extrabold text-slate-100 tracking-tight">
-            ¿Hablamos de <span className="text-emerald-400">Software</span>?
+            {t('footer.title')} <span className="text-emerald-400">{t('footer.titleHighlight')}</span>?
           </h2>
           <div className="space-y-4 text-slate-400 text-lg leading-relaxed max-w-md mx-auto lg:mx-0">
-            <p>
-              Mi enfoque está en diseñar y desarrollar soluciones que impulsen el crecimiento tecnológico y garanticen la estabilidad de los sistemas.
-            </p>
-            <p>
-              Si buscas talento comprometido con las buenas prácticas en <strong>Backend</strong> o quieres explorar nuevas perspectivas sobre el ecosistema de software actual, estaré encantado de conectar. Mi bandeja de entrada es el primer paso para una gran colaboración.
-            </p>
+            <p>{t('footer.p1')}</p>
+            <p>{formatText(t('footer.p2'))}</p>
           </div>
           
           <div className="flex flex-col sm:flex-row items-center gap-6 justify-center lg:justify-start pt-4">
@@ -80,13 +89,12 @@ export function Footer() {
               </a>
             </div>
             
-            {/* CORRECCIÓN: href apunta a la variable importada 'miCV' */}
             <a 
               href={miCV} 
               download="Jorge_Diaz_CV.pdf"
               className="px-6 py-2.5 bg-slate-800/50 hover:bg-slate-800 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/50 rounded-lg text-sm font-bold transition-all flex items-center gap-2 group"
             >
-              <span>Descargar CV</span>
+              <span>{t('footer.btnCv')}</span>
               <svg className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
             </a>
           </div>
@@ -96,36 +104,36 @@ export function Footer() {
         <div className="lg:w-1/2 bg-slate-900/40 p-8 rounded-2xl border border-slate-800 backdrop-blur-sm shadow-2xl">
           <form onSubmit={handleSubmit} className="space-y-5 text-left">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-slate-400 mb-1">Nombre</label>
+              <label htmlFor="name" className="block text-sm font-medium text-slate-400 mb-1">{t('footer.formName')}</label>
               <input 
                 type="text" 
                 id="name" 
                 name="name" 
                 required
                 className="w-full bg-slate-950/50 border border-slate-800 rounded-lg px-4 py-3 text-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
-                placeholder="Ej. Reclutador Tech"
+                placeholder={t('footer.formNamePlaceholder')}
               />
             </div>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-slate-400 mb-1">Correo Electrónico</label>
+              <label htmlFor="email" className="block text-sm font-medium text-slate-400 mb-1">{t('footer.formEmail')}</label>
               <input 
                 type="email" 
                 id="email" 
                 name="email" 
                 required
                 className="w-full bg-slate-950/50 border border-slate-800 rounded-lg px-4 py-3 text-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
-                placeholder="correo@empresa.com"
+                placeholder={t('footer.formEmailPlaceholder')}
               />
             </div>
             <div>
-              <label htmlFor="message" className="block text-sm font-medium text-slate-400 mb-1">Mensaje</label>
+              <label htmlFor="message" className="block text-sm font-medium text-slate-400 mb-1">{t('footer.formMessage')}</label>
               <textarea 
                 id="message" 
                 name="message" 
                 required
                 rows="4"
                 className="w-full bg-slate-950/50 border border-slate-800 rounded-lg px-4 py-3 text-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors resize-none"
-                placeholder="Hola Jorge, nos gustaría conocer más sobre tu experiencia en Backend..."
+                placeholder={t('footer.formMessagePlaceholder')}
               ></textarea>
             </div>
             
@@ -135,13 +143,13 @@ export function Footer() {
               className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 px-6 rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {status === 'loading' ? (
-                <span className="animate-pulse">Enviando mensaje...</span>
+                <span className="animate-pulse">{t('footer.btnSending')}</span>
               ) : status === 'success' ? (
-                <span>¡Mensaje Enviado! 🚀</span>
+                <span>{t('footer.btnSuccess')}</span>
               ) : status === 'error' ? (
-                <span className="text-red-900">Hubo un error ❌</span>
+                <span className="text-red-900">{t('footer.btnError')}</span>
               ) : (
-                <span>Enviar Mensaje</span>
+                <span>{t('footer.btnSend')}</span>
               )}
             </button>
           </form>
@@ -149,7 +157,7 @@ export function Footer() {
       </div>
 
       <div className="max-w-6xl mx-auto pt-8 border-t border-slate-800/50 flex flex-col md:flex-row justify-between items-center gap-4 text-slate-500 text-xs font-mono">
-        <p>© {new Date().getFullYear()} Jorge Diaz. Todos los derechos reservados.</p>
+        <p>© {new Date().getFullYear()} Jorge Diaz. {t('footer.rights')}</p>
         <p>System.out.println("Ready to work");</p>
       </div>
     </footer>

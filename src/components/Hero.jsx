@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import jorgePhoto from '../assets/Jorge.png'; 
 
 // --------------------------------------------------------------------------
@@ -16,14 +17,12 @@ const ParticleBackground = () => {
     canvas.height = window.innerHeight;
 
     const particles = [];
-    // Reduje un poco la cantidad de 80 a 65 para que, al ser más grandes, no sature la pantalla
     const numParticles = 65; 
 
     for (let i = 0; i < numParticles; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        // AQUÍ ESTÁ EL CAMBIO: Radio más grande (entre 2.5 y 6px de radio)
         radius: Math.random() * 3.5 + 2.5, 
         vx: Math.random() * 0.5 - 0.25,
         vy: Math.random() * 0.5 - 0.25,
@@ -34,21 +33,17 @@ const ParticleBackground = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       particles.forEach((p, i) => {
-        // Mover partículas
         p.x += p.vx;
         p.y += p.vy;
 
-        // Rebotar en los bordes
         if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
         if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
 
-        // Dibujar partícula
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(16, 185, 129, 0.6)'; // Color Emerald un poco más opaco para resaltar
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.6)'; 
         ctx.fill();
 
-        // Conectar con otras partículas
         for (let j = i + 1; j < particles.length; j++) {
           const p2 = particles[j];
           const dx = p.x - p2.x;
@@ -59,9 +54,8 @@ const ParticleBackground = () => {
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
-            // La línea se desvanece mientras más lejos estén, pero es más notoria ahora
             ctx.strokeStyle = `rgba(16, 185, 129, ${0.25 - distance / 640})`; 
-            ctx.lineWidth = 1; // Líneas un poco más gruesas para acompañar a los nodos grandes
+            ctx.lineWidth = 1; 
             ctx.stroke();
           }
         }
@@ -106,7 +100,7 @@ const TypewriterText = ({ text, className = "", cursor = false, onComplete }) =>
     if (displayedText.length < text.length) {
       const timeoutId = setTimeout(() => {
         setDisplayedText(text.substring(0, displayedText.length + 1));
-      }, 50); 
+      }, 35); 
       return () => clearTimeout(timeoutId);
     } else {
       const pauseBeforeComplete = setTimeout(() => {
@@ -128,10 +122,10 @@ const TypewriterText = ({ text, className = "", cursor = false, onComplete }) =>
 };
 
 // --------------------------------------------------------------------------
-// 3. Componente del Marco Giratorio 
+// 3. Componente del Marco Giratorio (Stack Full-Stack)
 // --------------------------------------------------------------------------
 const RotatingFrame = () => {
-  const techs = ["Java", "Spring Boot", "Python", "React", "Node.js", "SQL"];
+  const techs = ["React & Next.js", "Spring Boot", "Node.js", "Python / AsyncIO", "PostgreSQL", "Arquitectura Hexagonal"];
   const [index, setIndex] = useState(0);
   const [fade, setFade] = useState(true);
 
@@ -150,7 +144,7 @@ const RotatingFrame = () => {
   return (
     <span className="inline-flex items-center gap-1 font-mono text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30 ml-2 align-middle">
       <span className="text-slate-500">{"["}</span>
-      <span className={`min-w-[110px] text-center transition-opacity duration-300 ${fade ? 'opacity-100' : 'opacity-0'}`}>
+      <span className={`min-w-[210px] text-center transition-opacity duration-300 ${fade ? 'opacity-100' : 'opacity-0'}`}>
         {techs[index]}
       </span>
       <span className="text-slate-500">{"]"}</span>
@@ -162,8 +156,8 @@ const RotatingFrame = () => {
 // 4. Componente "TechOrbit"
 // --------------------------------------------------------------------------
 const TechOrbit = () => {
-  const techs = useMemo(() => ["JAVA", "PYTHON", "SPRING BOOT", "REACT", "NODE.JS", "SQL"], []);
-  const orbitDuration = "30s"; 
+  const techs = useMemo(() => ["NEXT.JS", "SPRING BOOT", "PYTHON", "REACT", "NODE.JS", "SQL"], []);
+  const orbitDuration = "35s"; 
 
   return (
     <div 
@@ -202,7 +196,16 @@ const TechOrbit = () => {
 // --------------------------------------------------------------------------
 export function Hero() {
   const [step, setStep] = useState(0);
+  const { t, language } = useLanguage(); // Extraemos idioma y traductor
   const nextStep = useCallback(() => setStep((s) => s + 1), []);
+
+  // Reiniciar la animación si el idioma cambia
+  useEffect(() => {
+    const resetTimeout = setTimeout(() => {
+      setStep(0);
+    }, 10); 
+    return () => clearTimeout(resetTimeout);
+  }, [language]);
 
   return (
     <section className="relative min-h-[90vh] flex items-center overflow-hidden">
@@ -214,33 +217,39 @@ export function Hero() {
       <div className="max-w-6xl mx-auto px-8 py-20 md:py-32 flex flex-col md:flex-row items-center gap-12 relative z-10 w-full">
         
         {/* Columna de Texto */}
-        <div className="flex-1 space-y-6 text-center md:text-left relative z-20">
+        <div className="flex-1 space-y-4 text-center md:text-left relative z-20">
           
-          <div className="flex justify-center md:justify-start relative z-20">
+          <div className="flex justify-center md:justify-start relative z-20 mb-4">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900/80 backdrop-blur-sm border border-slate-800 rounded-lg shadow-inner">
               <span className="relative flex h-3 w-3">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
               </span>
-              <span className="font-mono text-emerald-400 text-xs">
-                status_check<span className="text-slate-500">::</span>OK_TO_HIRE
+              <span className="font-mono text-emerald-400 text-xs tracking-wide">
+                sys.status <span className="text-slate-500">===</span> 'READY_FOR_DEPLOYMENT'
               </span>
             </div>
           </div>
 
-          <h2 className="text-5xl md:text-6xl font-extrabold text-slate-100 leading-tight min-h-[120px] md:min-h-[144px] relative z-20">
-            <TypewriterText text="$ > Hola, soy " cursor={step === 0} onComplete={nextStep} />
-            <br className="hidden md:block"/>
+          <h2 className="text-5xl md:text-6xl font-extrabold text-slate-100 leading-tight min-h-[60px] md:min-h-[72px] relative z-20">
+            {/* Agregamos el 'key' basado en el idioma para forzar el reinicio de la animación */}
+            <TypewriterText key={`greet-${language}`} text={t('hero.greeting')} cursor={step === 0} onComplete={nextStep} />
             {step >= 1 && (
-              <TypewriterText text="Jorge Diaz" className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent" cursor={step === 1} onComplete={nextStep} />
+              <TypewriterText key={`name-${language}`} text="Jorge Diaz" className="text-slate-100" cursor={step === 1} onComplete={nextStep} />
             )}
           </h2>
+
+          <h3 className="text-3xl md:text-4xl font-bold min-h-[40px] md:min-h-[48px] relative z-20 mb-4">
+             {step >= 2 && (
+                <TypewriterText key={`role-${language}`} text={t('hero.role')} className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent" cursor={step === 2} onComplete={nextStep} />
+             )}
+          </h3>
           
-          <p className="text-xl leading-relaxed max-w-2xl min-h-[160px] sm:min-h-[120px] md:min-h-[96px] font-mono text-slate-400 relative z-20">
-            {step >= 2 && (
-              <TypewriterText text="Desarrollador de Software enfocado en Backend y Automatización. Transformo problemas complejos en soluciones eficientes usando" cursor={step === 2} onComplete={nextStep} />
-            )}
+          <p className="text-xl leading-relaxed max-w-2xl min-h-[160px] sm:min-h-[120px] md:min-h-[96px] font-mono text-slate-400 relative z-20 mt-4">
             {step >= 3 && (
+              <TypewriterText key={`desc-${language}`} text={t('hero.description')} cursor={step === 3} onComplete={nextStep} />
+            )}
+            {step >= 4 && (
               <React.Fragment>
                 <RotatingFrame />
                 <span className="inline-block w-3 h-[0.9em] ml-2 bg-emerald-400 animate-cursor-blink align-middle shadow-[0_0_8px_#10b981]"></span>
@@ -249,18 +258,18 @@ export function Hero() {
           </p>
 
           {/* Botones principales */}
-          <div className="flex flex-col sm:flex-row gap-4 pt-4 justify-center md:justify-start relative z-20">
+          <div className="flex flex-col sm:flex-row gap-4 pt-6 justify-center md:justify-start relative z-20">
             <a href="#proyectos" className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 px-8 rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] flex items-center justify-center gap-2">
-              <span>Ver mis proyectos</span>
-              <span className="text-xs font-mono">./projects.sh</span>
+              <span>{t('hero.btnProjects')}</span>
+              <span className="text-xs font-mono bg-slate-950/20 px-2 py-1 rounded">./projects.sh</span>
             </a>
             <a href="#contacto" className="border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white font-bold py-3 px-8 rounded-xl transition-all bg-slate-800/50 hover:bg-slate-800 flex items-center justify-center backdrop-blur-sm">
-              Contactar<span className="text-emerald-500 font-mono ml-1">;</span>
+              {t('hero.btnContact')}<span className="text-emerald-500 font-mono ml-1">;</span>
             </a>
           </div>
 
           {/* Fila de Íconos de Contacto Rápido */}
-          <div className="flex justify-center md:justify-start gap-5 pt-6 relative z-20">
+          <div className="flex justify-center md:justify-start gap-5 pt-8 relative z-20">
             <a href="https://github.com/JARD1" target="_blank" rel="noopener noreferrer" className="p-2 text-slate-400 hover:text-emerald-400 hover:-translate-y-1 transition-all" title="GitHub">
               <span className="sr-only">GitHub</span>
               <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" /></svg>
